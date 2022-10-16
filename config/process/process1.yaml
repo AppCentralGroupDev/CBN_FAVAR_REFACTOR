@@ -1,0 +1,14 @@
+use_columns: 
+  - col1
+  - col2
+
+datasrc: favardata1105.xlsx
+processed_outputs: 
+  - processed.xlsx
+  - growth_rate.xlsx
+final_outputs: 
+  - endog.csv
+  - exogC.csv
+
+remote_server_uri: "http://localhost:5001"
+
