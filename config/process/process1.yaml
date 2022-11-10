@@ -1,6 +1,10 @@
 use_columns: 
-  - col1
-  - col2
+  - pc1
+  - pc2
+  - pc3
+  - pc4
+  - pc5
+  - dlRY
 
 datasrc: favardata1105.xlsx
 processed_outputs: 
@@ -10,5 +14,5 @@ final_outputs:
   - endog.csv
   - exogC.csv
 
-remote_server_uri: "http://localhost:5001"
+
 

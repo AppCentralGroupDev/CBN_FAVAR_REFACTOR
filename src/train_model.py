@@ -5,6 +5,7 @@ Author: Clinton Mbataku
 """
 
 import logging
+import os
 import warnings
 from urllib.parse import urlparse
 
@@ -22,12 +23,24 @@ logger = logging.getLogger(__name__)
 
 @hydra.main(config_path="../config", config_name="main")
 def main(config: DictConfig):
+
     """
     Main function
     """
 
+    """
+    environment variables for s3 bucket
+    """
+
+    os.environ["AWS_ACCESS_KEY_ID"] = config.model.AWS_ACCESS_KEY_ID
+    os.environ["AWS_SECRET_ACCESS_KEY"] = config.model.AWS_SECRET_ACCESS_KEY
+    os.environ["MLFLOW_S3_ENDPOINT_URL"] = config.model.MLFLOW_S3_ENDPOINT_URL
+
     # getting paths from config
     final_path = abspath(config.final.dir)
+
+    raw_path = abspath(config.raw.path)
+    processed_path = abspath(config.processed.dir)
 
     # Read training data csv
     endog = pd.read_csv(f"{final_path}/{config.process.final_outputs[0]}")
@@ -47,15 +60,15 @@ def main(config: DictConfig):
     warnings.filterwarnings("ignore")
 
     remote_server_uri = (
-        config.process.remote_server_uri
+        config.model.remote_server_uri
     )  # set to your server URI
     """
-    set remote tracking sever uri 
+    set remote tracking sever uri
     """
     mlflow.set_tracking_uri(remote_server_uri)
     mlflow.set_experiment(config.model.experiment_name)
     """
-    set experiment name 
+    set experiment name
     """
 
     mlflow.statsmodels.autolog()
@@ -81,6 +94,19 @@ def main(config: DictConfig):
         # AIC = results.aic
         # BIC = results.bic
         # HQIC = results.hqic
+
+        # saving all artifacts
+        # saving all files used to mlflow
+
+        mlflow.log_artifact(f"{final_path}/{config.process.final_outputs[0]}")
+        mlflow.log_artifact(f"{final_path}/{config.process.final_outputs[1]}")
+        mlflow.log_artifact(f"{raw_path}/{config.process.datasrc}")
+        mlflow.log_artifact(
+            f"{processed_path}/{config.process.processed_outputs[0]}"
+        )
+        mlflow.log_artifact(
+            f"{processed_path}/{config.process.processed_outputs[1]}"
+        )
 
         # # log metrics if you use the manual log method
         # mlflow.log_metrics({"Log likelihood": Log_likelihood,
